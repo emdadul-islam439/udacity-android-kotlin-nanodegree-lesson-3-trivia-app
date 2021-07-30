@@ -20,6 +20,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -46,13 +47,18 @@ class GameWonFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.winner_menu, menu)
+        //checking if there is any app to handle our implicit "shareIntent"
+        if(null == getShareIntent().resolveActivity(activity!!.packageManager)){
+            menu.findItem(R.id.share).isVisible = false
+        }
     }
 
     private fun  getShareIntent() : Intent {
         val args = arguments?.let { GameWonFragmentArgs.fromBundle(it) }
-        val shareIntent = Intent(Intent.ACTION_SEND)
+        val shareIntent = ShareCompat.IntentBuilder.from(requireActivity())
+                .setText(getString(R.string.share_success_text, args?.numCorrect, args?.numQuestions))
                 .setType("text/plain")
-                .putExtra(Intent.EXTRA_TEXT, getString(R.string.share_success_text, args?.numCorrect, args?.numQuestions))
+                .intent
         return shareIntent
     }
     private fun shareSuccess(){
